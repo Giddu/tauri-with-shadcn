@@ -9,10 +9,10 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
+import { useState } from "react";
 
 const formSchema = z.object({
   method: z.string(),
@@ -22,16 +22,20 @@ const formSchema = z.object({
 type FormType = z.infer<typeof formSchema>;
 
 function App() {
+  const [response, setResponse] = useState("Do Request to view data")
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       method: "GET",
-      url: ""
+      url: "https://cat-fact.herokuapp.com/facts/"
     }
   });
 
   const onSubmit = (values: FormType) => {
-    console.log(values)
+    fetch(values.url)
+      .then(res => res.json())
+      .then(data => setResponse(JSON.stringify(data, null, 2)))
+      .catch(error => console.error(error))
   }
 
   return (
@@ -75,6 +79,9 @@ function App() {
           <Button type="submit">Submit</Button>
         </form>
       </Form>
+      <div>
+        {response}
+      </div>
     </div>
   );
 }
